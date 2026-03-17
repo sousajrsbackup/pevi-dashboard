@@ -3,333 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Controle de PEVi</title>
+<title>Controle de PEVi</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f4f5f7;
-    --bg2: #ffffff;
-    --bg3: #eef0f3;
-    --border: rgba(0,0,0,0.07);
-    --border2: rgba(0,0,0,0.13);
-    --text: #1a1d23;
-    --muted: #6b7280;
-    --accent-blue: #2563eb;
-    --accent-green: #059669;
-    --accent-amber: #d97706;
-    --accent-red: #dc2626;
-    --accent-purple: #7c3aed;
-    --c97: #2563eb;
-    --t25: #059669;
-    --a29: #d97706;
-    --c98: #7c3aed;
+    --bg:#f4f5f7;--bg2:#ffffff;--bg3:#eef0f3;
+    --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+    --text:#1a1d23;--muted:#6b7280;
+    --blue:#2563eb;--green:#059669;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 28px 32px; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
-  .header-left h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); }
-  .header-left p { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .refresh-btn { display: flex; align-items: center; gap: 6px; background: var(--bg2); border: 0.5px solid var(--border2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-  .refresh-btn:hover { color: var(--text); border-color: rgba(0,0,0,0.25); background: var(--bg3); }
-  .refresh-btn svg { width: 13px; height: 13px; }
-  .loading { display: flex; align-items: center; justify-content: center; min-height: 300px; color: var(--muted); font-size: 14px; gap: 10px; }
-  .spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .error-msg { background: #fef2f2; border: 0.5px solid #fca5a5; border-radius: 10px; padding: 16px 20px; color: #b91c1c; font-size: 13px; margin-bottom: 20px; display: none; }
-  .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 14px; }
-  .kpi { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.2s; }
-  .kpi:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.09); }
-  .kpi-accent { position: absolute; top: 0; left: 0; width: 100%; height: 3px; border-radius: 12px 12px 0 0; }
-  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 10px; margin-top: 4px; }
-  .kpi-value { font-size: 32px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: -1px; line-height: 1; margin-bottom: 6px; }
-  .kpi-sub { font-size: 11px; color: var(--muted); }
-  .row-mid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .card-title { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 18px; }
-  .bar-group { margin-bottom: 13px; }
-  .bar-group:last-child { margin-bottom: 0; }
-  .bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
-  .bar-fab { color: var(--text); }
-  .bar-pct { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; }
-  .bar-track { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
-  .prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .prog-row:last-child { margin-bottom: 0; }
-  .prog-tag { font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; min-width: 44px; padding: 3px 8px; border-radius: 5px; text-align: center; white-space: nowrap; }
-  .prog-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
-  .prog-bar { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
-  .prog-pct { font-size: 12px; font-weight: 500; font-family: 'DM Mono', monospace; width: 38px; text-align: right; }
-  .divider { border: none; border-top: 0.5px solid var(--border); margin: 18px 0; }
-  .mini-stats { display: flex; gap: 8px; }
-  .mini-stat { flex: 1; text-align: center; padding: 10px 6px; background: var(--bg3); border-radius: 8px; }
-  .mini-stat-val { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .mini-stat-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
-  .section-title { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; }
-  .venc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-  .venc-card { background: var(--bg2); border-radius: 12px; padding: 18px; position: relative; overflow: hidden; border: 0.5px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: box-shadow 0.2s, transform 0.2s; }
-  .venc-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.09); }
-  .venc-stripe { position: absolute; left: 0; top: 0; width: 4px; height: 100%; border-radius: 12px 0 0 12px; }
-  .venc-inner { padding-left: 12px; }
-  .venc-proj { font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .venc-fab { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-  .venc-date { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-  .venc-dias { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; margin-bottom: 8px; }
-  .venc-pevc { font-size: 11px; margin-bottom: 10px; line-height: 1.5; padding: 7px 10px; border-radius: 6px; }
-  .venc-pevc-danger { background: #fef2f2; color: #b91c1c; }
-  .venc-pevc-warn { background: #fffbeb; color: #92400e; }
-  .venc-pevc-ok { background: #ecfdf5; color: #065f46; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
-  .badge-danger { background: #fef2f2; color: #b91c1c; border: 0.5px solid #fca5a5; }
-  .badge-danger .badge-dot { background: #dc2626; }
-  .badge-warn { background: #fffbeb; color: #92400e; border: 0.5px solid #fcd34d; }
-  .badge-warn .badge-dot { background: #d97706; }
-  .badge-ok { background: #ecfdf5; color: #065f46; border: 0.5px solid #6ee7b7; }
-  .badge-ok .badge-dot { background: #059669; }
-  .proj-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 14px; }
-  .proj-block { display: flex; flex-direction: column; align-items: center; }
-  .proj-icon { width: 100%; height: 90px; margin-bottom: 6px; display:flex; align-items:center; justify-content:center; }
-  .proj-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-  .proj-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 0.5px solid var(--border); }
-  .proj-card-name { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .proj-card-count { font-size: 11px; color: var(--muted); }
-  .proj-empty { text-align: center; padding: 20px 8px; color: var(--muted); font-size: 12px; line-height: 1.5; } text-align: center; font-size: 11px; color: var(--muted); margin-top: 24px; padding-top: 16px; border-top: 0.5px solid var(--border); }
-  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; }
-  #dashboard { display: none; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 32px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
+  .header-left h1{font-size:22px;font-weight:600;letter-spacing:-0.3px;}
+  .header-left p{font-size:13px;color:var(--muted);margin-top:4px;}
+  .refresh-btn{display:flex;align-items:center;gap:6px;background:var(--bg2);border:0.5px solid var(--border2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all 0.2s;}
+  .refresh-btn:hover{color:var(--text);background:var(--bg3);}
+  .refresh-btn svg{width:13px;height:13px;}
+  .loading{display:flex;align-items:center;justify-content:center;min-height:300px;color:var(--muted);font-size:14px;gap:10px;}
+  .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .error-msg{background:#fef2f2;border:0.5px solid #fca5a5;border-radius:10px;padding:16px 20px;color:#b91c1c;font-size:13px;margin-bottom:20px;display:none;}
+  .kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;}
+  .kpi{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+  .kpi-accent{position:absolute;top:0;left:0;width:100%;height:3px;border-radius:12px 12px 0 0;}
+  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;margin-top:4px;}
+  .kpi-value{font-size:32px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-1px;line-height:1;margin-bottom:6px;}
+  .kpi-sub{font-size:11px;color:var(--muted);}
+  .section-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;}
+  .proj-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px;}
+  .proj-block{display:flex;flex-direction:column;align-items:center;}
+  .proj-icon{width:100%;height:90px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;}
+  .proj-icon img{width:100%;height:100%;object-fit:contain;}
+  .proj-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px;width:100%;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+  .proj-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:0.5px solid var(--border);}
+  .proj-card-name{font-size:15px;font-weight:600;font-family:'DM Mono',monospace;}
+  .proj-card-count{font-size:11px;color:var(--muted);}
+  .proj-empty{text-align:center;padding:20px 8px;color:var(--muted);font-size:12px;line-height:1.5;}
+  .bar-group{margin-bottom:13px;}
+  .bar-group:last-child{margin-bottom:0;}
+  .bar-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+  .bar-fab{color:var(--text);}
+  .bar-pct{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;}
+  .bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+  .venc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+  .venc-card{background:var(--bg2);border-radius:12px;padding:18px;position:relative;overflow:hidden;border:0.5px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.2s,transform 0.2s;}
+  .venc-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.09);}
+  .venc-stripe{position:absolute;left:0;top:0;width:4px;height:100%;border-radius:12px 0 0 12px;}
+  .venc-inner{padding-left:12px;}
+  .venc-proj{font-size:10px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:0.5px;margin-bottom:6px;}
+  .venc-fab{font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .venc-date{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .venc-dias{font-size:13px;font-weight:600;font-family:'DM Mono',monospace;margin-bottom:8px;}
+  .venc-pevc{font-size:11px;margin-bottom:10px;line-height:1.5;padding:7px 10px;border-radius:6px;}
+  .venc-pevc-danger{background:#fef2f2;color:#b91c1c;}
+  .venc-pevc-warn{background:#fffbeb;color:#92400e;}
+  .venc-pevc-ok{background:#ecfdf5;color:#065f46;}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;font-family:'DM Mono',monospace;}
+  .badge-dot{width:5px;height:5px;border-radius:50%;}
+  .badge-danger{background:#fef2f2;color:#b91c1c;border:0.5px solid #fca5a5;}
+  .badge-danger .badge-dot{background:#dc2626;}
+  .badge-warn{background:#fffbeb;color:#92400e;border:0.5px solid #fcd34d;}
+  .badge-warn .badge-dot{background:#d97706;}
+  .badge-ok{background:#ecfdf5;color:#065f46;border:0.5px solid #6ee7b7;}
+  .badge-ok .badge-dot{background:#059669;}
+  .last-update{text-align:center;font-size:11px;color:var(--muted);margin-top:24px;padding-top:16px;border-top:0.5px solid var(--border);}
+  .empty-state{text-align:center;padding:32px;color:var(--muted);font-size:13px;}
+  #dashboard{display:none;}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-left">
     <h1>Controle de PEVi</h1>
     <p id="subtitulo">Carregando dados...</p>
   </div>
   <button class="refresh-btn" onclick="loadData()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="23 4 23 10 17 10"></polyline>
-      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
     Atualizar
   </button>
 </div>
-
 <div id="error-msg" class="error-msg"></div>
 <div id="loading" class="loading"><div class="spinner"></div> Buscando dados do Google Sheets...</div>
-
 <div id="dashboard">
   <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-accent" style="background:var(--accent-blue)"></div>
-      <div class="kpi-label">Total de PEVi's</div>
-      <div class="kpi-value" style="color:var(--accent-blue)" id="kpi-total">—</div>
-      <div class="kpi-sub">todas as aeronaves</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-accent" style="background:var(--accent-green)"></div>
-      <div class="kpi-label">Emitidas (100%)</div>
-      <div class="kpi-value" style="color:var(--accent-green)" id="kpi-emitidas">—</div>
-      <div class="kpi-sub" id="kpi-emitidas-pct">—</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-accent" style="background:var(--accent-amber)"></div>
-      <div class="kpi-label">Em processo (&lt;100%)</div>
-      <div class="kpi-value" style="color:var(--accent-amber)" id="kpi-processo">—</div>
-      <div class="kpi-sub">prioridade do diretor</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-accent" style="background:var(--accent-red)"></div>
-      <div class="kpi-label">Vencendo em 3 meses</div>
-      <div class="kpi-value" style="color:var(--accent-red)" id="kpi-vencendo">—</div>
-      <div class="kpi-sub">iniciar PEVc urgente</div>
-    </div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--blue)"></div><div class="kpi-label">Total de PEVi's</div><div class="kpi-value" style="color:var(--blue)" id="kpi-total">—</div><div class="kpi-sub">todas as aeronaves</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">Emitidas (100%)</div><div class="kpi-value" style="color:var(--green)" id="kpi-emitidas">—</div><div class="kpi-sub" id="kpi-emitidas-pct">—</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Em processo (&lt;100%)</div><div class="kpi-value" style="color:var(--amber)" id="kpi-processo">—</div><div class="kpi-sub">prioridade do diretor</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Vencendo em 3 meses</div><div class="kpi-value" style="color:var(--red)" id="kpi-vencendo">—</div><div class="kpi-sub">iniciar PEVc urgente</div></div>
   </div>
-
   <div class="section-title" style="margin-bottom:8px">PEVi's em processo — por projeto</div>
   <div class="proj-grid" id="proj-processo-grid"></div>
-
   <div class="section-title">Próximas PEVi's a vencer — iniciar PEVc</div>
-  <div id="vencendo-grid" class="venc-grid">
-    <div class="empty-state">Nenhuma PEVi com data de vencimento cadastrada</div>
-  </div>
-
+  <div id="vencendo-grid" class="venc-grid"><div class="empty-state">Nenhuma PEVi com data de vencimento cadastrada</div></div>
   <div class="last-update" id="last-update"></div>
 </div>
-
- = '1qcF1Czqz1LIBVeXNRtlOuuSvde6sfBrOfbuCcZcsxjg';
+<script>
+const SHEET_ID = '1qcF1Czqz1LIBVeXNRtlOuuSvde6sfBrOfbuCcZcsxjg';
 const SHEET_NAME = 'Status de PEVi';
-const PROJ_COLORS = { 'C-97':'#2563eb','T-25':'#059669','A-29':'#d97706','C-98':'#7c3aed' };
+const PROJ_COLORS = {'C-97':'#2563eb','T-25':'#059669','A-29':'#d97706','C-98':'#7c3aed'};
+const PROJ_ICONS = {
+  'A-29': 'https://drive.google.com/uc?export=view&id=1Hisof4V74jUBwusaBINkvv-Q-8-BoMCD',
+  'C-97': 'https://drive.google.com/uc?export=view&id=10yWGTw10nzu41ziWu-oeH14k_i9NMjcB',
+  'C-98': 'https://drive.google.com/uc?export=view&id=1he7vzE439c47i2694yi21aGLHzGCMlkG',
+  'T-25': 'https://drive.google.com/uc?export=view&id=1js8e4W166HgOw-0Y1pWzdpLFz9ucETWO'
+};
 
-function projColor(p) { return PROJ_COLORS[p] || '#6b7280'; }
+function projColor(p){return PROJ_COLORS[p]||'#6b7280';}
 
-function parseDate(v) {
-  if (!v) return null;
-  const s = String(v).trim();
-  // Format: Date(YYYY,M,D) from Google gviz
-  const gMatch = s.match(/Date\((\d+),(\d+),(\d+)\)/);
-  if (gMatch) return new Date(parseInt(gMatch[1]), parseInt(gMatch[2]), parseInt(gMatch[3]));
-  // Format: DD/MM/YYYY
-  const parts = s.split('/');
-  if (parts.length === 3 && parts[2].length === 4) {
-    return new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
-  }
-  // Google serial number
-  if (!isNaN(v) && typeof v === 'number') {
-    const d = new Date((v - 25569) * 86400000);
-    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  }
+function parseDate(v){
+  if(!v) return null;
+  const s=String(v).trim();
+  const gm=s.match(/Date\((\d+),(\d+),(\d+)\)/);
+  if(gm) return new Date(parseInt(gm[1]),parseInt(gm[2]),parseInt(gm[3]));
+  const parts=s.split('/');
+  if(parts.length===3&&parts[2].length===4) return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+  if(!isNaN(v)&&typeof v==='number'){const d=new Date((v-25569)*86400000);return new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate());}
   return null;
 }
 
-function formatDate(d) { return d ? d.toLocaleDateString('pt-BR') : '—'; }
+function formatDate(d){return d?d.toLocaleDateString('pt-BR'):'—';}
+function daysDiff(d){const t=new Date();t.setHours(0,0,0,0);return Math.round((d-t)/86400000);}
+function barColor(p){if(p<=50)return '#dc2626';if(p<=75)return '#d97706';return '#059669';}
 
-function daysDiff(d) {
-  const t = new Date(); t.setHours(0,0,0,0);
-  return Math.round((d - t) / 86400000);
-}
-
-function barColor(pct) {
-  if (pct <= 50) return '#dc2626';
-  if (pct <= 75) return '#d97706';
-  return '#059669';
-}
-
-async function loadData() {
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('error-msg').style.display = 'none';
-
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-  try {
-    const res = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    const cols = json.table.cols.map(c => c.label);
-    const rows = json.table.rows;
-
-    const data = rows.map(r => {
-      const get = i => r.c[i] ? (r.c[i].v !== undefined ? r.c[i].v : null) : null;
-      const getF = i => r.c[i] ? (r.c[i].f || r.c[i].v || null) : null;
-      // Debug: log first row raw values
-      if (rows.indexOf(r) === 0) console.log('RAW row 0:', JSON.stringify(r.c));
-      return {
-        aeronave: get(0) ? String(get(0)).trim() : '',
-        projeto:  get(1) ? String(get(1)).trim() : '',
-        conclusao: get(2) !== null ? Number(get(2)) : null,
-        status:    get(3) ? String(get(3)).trim() : '',
-        vencimento:  parseDate(getF(5)) || parseDate(get(5)),
-        inicioPevc:  parseDate(getF(6)) || parseDate(get(6)),
+async function loadData(){
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('error-msg').style.display='none';
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  try{
+    const res=await fetch(url);
+    const text=await res.text();
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows=json.table.rows;
+    const data=rows.map(r=>{
+      const get=i=>r.c[i]?(r.c[i].v!==undefined?r.c[i].v:null):null;
+      const getF=i=>r.c[i]?(r.c[i].f||r.c[i].v||null):null;
+      return{
+        aeronave:get(0)?String(get(0)).trim():'',
+        projeto:get(1)?String(get(1)).trim():'',
+        conclusao:get(2)!==null?Number(get(2)):null,
+        vencimento:parseDate(getF(5))||parseDate(get(5)),
+        inicioPevc:parseDate(getF(6))||parseDate(get(6)),
       };
-    }).filter(r => (r.aeronave || r.projeto) && r.conclusao !== null);
-    // Debug: log parsed dates
-    console.log('Parsed vencimentos:', data.map(r => r.aeronave + ': ' + (r.vencimento ? r.vencimento.toLocaleDateString('pt-BR') : 'null')));
-
+    }).filter(r=>(r.aeronave||r.projeto)&&r.conclusao!==null);
     renderDashboard(data);
-  } catch(e) {
+  }catch(e){
     console.error(e);
-    document.getElementById('loading').style.display = 'none';
-    const err = document.getElementById('error-msg');
-    err.style.display = 'block';
-    err.textContent = 'Erro ao carregar dados. Certifique-se de que a planilha está compartilhada como "Qualquer pessoa com o link pode ver".';
+    document.getElementById('loading').style.display='none';
+    const err=document.getElementById('error-msg');
+    err.style.display='block';
+    err.textContent='Erro ao carregar dados. Verifique se a planilha está compartilhada como "Qualquer pessoa com o link pode ver".';
   }
 }
 
-function renderDashboard(data) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in3m = new Date(today); in3m.setMonth(in3m.getMonth()+3);
+function renderDashboard(data){
+  const today=new Date();today.setHours(0,0,0,0);
+  const in3m=new Date(today);in3m.setMonth(in3m.getMonth()+3);
+  const emitidas=data.filter(r=>r.conclusao===100);
+  const emProcesso=data.filter(r=>r.conclusao<100).sort((a,b)=>a.conclusao-b.conclusao);
+  const vencendo3m=data.filter(r=>r.vencimento&&r.vencimento>=today&&r.vencimento<=in3m);
+  const vencendo=data.filter(r=>r.vencimento&&r.vencimento>=today).sort((a,b)=>a.vencimento-b.vencimento);
 
-  const emitidas   = data.filter(r => r.conclusao === 100);
-  const emProcesso = data.filter(r => r.conclusao < 100).sort((a,b) => a.conclusao - b.conclusao);
-  const vencendo3m  = data.filter(r => r.vencimento && r.vencimento >= today && r.vencimento <= in3m);
-  const vencendo   = data.filter(r => r.vencimento && r.vencimento >= today)
-                         .sort((a,b) => a.vencimento - b.vencimento);
+  document.getElementById('kpi-total').textContent=data.length;
+  document.getElementById('kpi-emitidas').textContent=emitidas.length;
+  document.getElementById('kpi-emitidas-pct').textContent=Math.round(emitidas.length/data.length*100)+'% do total';
+  document.getElementById('kpi-processo').textContent=emProcesso.length;
+  document.getElementById('kpi-vencendo').textContent=vencendo3m.length;
 
-  // KPIs
-  document.getElementById('kpi-total').textContent    = data.length;
-  document.getElementById('kpi-emitidas').textContent  = emitidas.length;
-  document.getElementById('kpi-emitidas-pct').textContent = Math.round(emitidas.length/data.length*100)+'% do total';
-  document.getElementById('kpi-processo').textContent  = emProcesso.length;
-  document.getElementById('kpi-vencendo').textContent  = vencendo3m.length;
-
-  const projetos = [...new Set(data.map(r=>r.projeto).filter(Boolean))];
-
-  // 4-project cards with SVG aircraft icons
-  const PROJETOS_FIXOS = ['A-29','C-97','C-98','T-25'];
-      const ICONS = {
-    'A-29': `<img src="https://drive.google.com/uc?export=view&id=1Hisof4V74jUBwusaBINkvv-Q-8-BoMCD" style="width:100%;height:100%;object-fit:contain;">`,
-    'C-97': `<img src="https://drive.google.com/uc?export=view&id=10yWGTw10nzu41ziWu-oeH14k_i9NMjcB" style="width:100%;height:100%;object-fit:contain;">`,
-    'C-98': `<img src="https://drive.google.com/uc?export=view&id=1he7vzE439c47i2694yi21aGLHzGCMlkG" style="width:100%;height:100%;object-fit:contain;">`,
-    'T-25': `<img src="https://drive.google.com/uc?export=view&id=1js8e4W166HgOw-0Y1pWzdpLFz9ucETWO" style="width:100%;height:100%;object-fit:contain;">`
-  };
-
-  const projGrid = document.getElementById('proj-processo-grid');
-  projGrid.innerHTML = PROJETOS_FIXOS.map(proj => {
-    const cor = projColor(proj);
-    const icon = ICONS[proj].replace(/COLOR/g, cor);
-    const emProc = emProcesso.filter(r => r.projeto === proj);
-    const barras = emProc.length === 0
-      ? `<div class="proj-empty">Nenhuma aeronave<br>em processo de PEVi</div>`
-      : emProc.map(r => `
-          <div class="bar-group">
-            <div class="bar-top">
-              <span class="bar-fab">${r.aeronave || '(sem nome)'}</span>
-              <span class="bar-pct" style="color:${barColor(r.conclusao)}">${r.conclusao}%</span>
-            </div>
-            <div class="bar-track"><div class="bar-fill" style="width:${r.conclusao}%;background:${barColor(r.conclusao)}"></div></div>
-          </div>`).join('');
-    return `
-      <div class="proj-block">
-        <div class="proj-icon">${icon}</div>
-        <div class="proj-card">
-          <div class="proj-card-header">
-            <span class="proj-card-name" style="color:${cor}">${proj}</span>
-            <span class="proj-card-count">${emProc.length} em processo</span>
-          </div>
-          ${barras}
-        </div>
-      </div>`;
+  const PROJETOS_FIXOS=['A-29','C-97','C-98','T-25'];
+  document.getElementById('proj-processo-grid').innerHTML=PROJETOS_FIXOS.map(proj=>{
+    const cor=projColor(proj);
+    const emProc=emProcesso.filter(r=>r.projeto===proj);
+    const barras=emProc.length===0
+      ?'<div class="proj-empty">Nenhuma aeronave<br>em processo de PEVi</div>'
+      :emProc.map(r=>`<div class="bar-group"><div class="bar-top"><span class="bar-fab">${r.aeronave||'(sem nome)'}</span><span class="bar-pct" style="color:${barColor(r.conclusao)}">${r.conclusao}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${r.conclusao}%;background:${barColor(r.conclusao)}"></div></div></div>`).join('');
+    return `<div class="proj-block"><div class="proj-icon"><img src="${PROJ_ICONS[proj]}" alt="${proj}"></div><div class="proj-card"><div class="proj-card-header"><span class="proj-card-name" style="color:${cor}">${proj}</span><span class="proj-card-count">${emProc.length} em processo</span></div>${barras}</div></div>`;
   }).join('');
 
-  // Vencendo
-  const vGrid = document.getElementById('vencendo-grid');
-  if (vencendo.length === 0) {
-    vGrid.innerHTML = '<div class="empty-state">Nenhuma PEVi com data de vencimento cadastrada</div>';
-  } else {
-    vGrid.innerHTML = vencendo.map(r => {
-      const dias = daysDiff(r.vencimento);
-      const atrasado = r.inicioPevc && r.inicioPevc < today;
-      const urgente  = dias <= 90;
-      let bc = 'badge-ok', bt = 'Dentro do prazo';
-      let pc = 'venc-pevc-ok';
-      if (atrasado) { bc='badge-danger'; bt='PEVc atrasada'; pc='venc-pevc-danger'; }
-      else if (urgente) { bc='badge-warn'; bt='Atenção'; pc='venc-pevc-warn'; }
-
-      const pevcTxt = r.inicioPevc
-        ? (atrasado ? `⚠ PEVc deveria ter iniciado em ${formatDate(r.inicioPevc)}`
-                    : `Iniciar PEVc até ${formatDate(r.inicioPevc)}`)
-        : 'Sem data de início PEVc definida';
-
-      const diasColor = dias <= 90 ? (dias <= 30 ? '#dc2626' : '#d97706') : '#059669';
-
-      return `
-        <div class="venc-card">
-          <div class="venc-stripe" style="background:${projColor(r.projeto)}"></div>
-          <div class="venc-inner">
-            <div class="venc-proj" style="color:${projColor(r.projeto)}">${r.projeto}</div>
-            <div class="venc-fab">${r.aeronave || '(sem nome)'}</div>
-            <div class="venc-date">Vence em ${formatDate(r.vencimento)}</div>
-            <div class="venc-dias" style="color:${diasColor}">${dias} dias restantes</div>
-            <div class="venc-pevc ${pc}">${pevcTxt}</div>
-            <span class="badge ${bc}"><span class="badge-dot"></span>${bt}</span>
-          </div>
-        </div>`;
+  const vGrid=document.getElementById('vencendo-grid');
+  if(vencendo.length===0){
+    vGrid.innerHTML='<div class="empty-state">Nenhuma PEVi com data de vencimento cadastrada</div>';
+  }else{
+    vGrid.innerHTML=vencendo.map(r=>{
+      const dias=daysDiff(r.vencimento);
+      const atrasado=r.inicioPevc&&r.inicioPevc<today;
+      const urgente=dias<=90;
+      let bc='badge-ok',bt='Dentro do prazo',pc='venc-pevc-ok';
+      if(atrasado){bc='badge-danger';bt='PEVc atrasada';pc='venc-pevc-danger';}
+      else if(urgente){bc='badge-warn';bt='Atenção';pc='venc-pevc-warn';}
+      const pevcTxt=r.inicioPevc?(atrasado?`⚠ PEVc deveria ter iniciado em ${formatDate(r.inicioPevc)}`:`Iniciar PEVc até ${formatDate(r.inicioPevc)}`):'Sem data de início PEVc definida';
+      const diasColor=dias<=90?(dias<=30?'#dc2626':'#d97706'):'#059669';
+      return `<div class="venc-card"><div class="venc-stripe" style="background:${projColor(r.projeto)}"></div><div class="venc-inner"><div class="venc-proj" style="color:${projColor(r.projeto)}">${r.projeto}</div><div class="venc-fab">${r.aeronave||'—'}</div><div class="venc-date">Vence em ${formatDate(r.vencimento)}</div><div class="venc-dias" style="color:${diasColor}">${dias} dias restantes</div><div class="venc-pevc ${pc}">${pevcTxt}</div><span class="badge ${bc}"><span class="badge-dot"></span>${bt}</span></div></div>`;
     }).join('');
   }
 
-  document.getElementById('subtitulo').textContent = `Projetos: ${projetos.join(', ')} · ${data.length} aeronaves`;
-  document.getElementById('last-update').textContent = `Última atualização: ${new Date().toLocaleString('pt-BR')} · Dados do Google Sheets`;
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
+  const projetos=[...new Set(data.map(r=>r.projeto).filter(Boolean))];
+  document.getElementById('subtitulo').textContent=`Projetos: ${projetos.join(', ')} · ${data.length} aeronaves`;
+  document.getElementById('last-update').textContent=`Última atualização: ${new Date().toLocaleString('pt-BR')} · Dados do Google Sheets`;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('dashboard').style.display='block';
 }
 
 loadData();
