@@ -76,7 +76,7 @@
 <body>
 <div class="header">
   <div class="header-left">
-    <h1>DMOI -  Controle de PEVi</h1>
+    <h1>DMOI - Controle de PEVi</h1>
     <p id="subtitulo">Carregando dados...</p>
   </div>
   <button class="refresh-btn" onclick="loadData()">
@@ -109,6 +109,7 @@ const PROJ_ICONS = {
   'C-98': 'https://raw.githubusercontent.com/sousajrsbackup/pevi-dashboard/main/c-98_mono.png',
   'T-25': 'https://raw.githubusercontent.com/sousajrsbackup/pevi-dashboard/main/t-25_mono.png'
 };
+const PROJETOS_FIXOS = ['A-29','C-97','C-98','T-25'];
 
 function projColor(p){return PROJ_COLORS[p]||'#6b7280';}
 
@@ -172,7 +173,9 @@ function renderDashboard(data){
   document.getElementById('kpi-processo').textContent=emProcesso.length;
   document.getElementById('kpi-vencendo').textContent=vencendo3m.length;
 
-  const PROJETOS_FIXOS=['A-29','C-97','C-98','T-25'];
+  // Subtítulo sempre com os 4 projetos fixos + total de aeronaves
+  document.getElementById('subtitulo').textContent=`Projetos: A-29 · C-97 · C-98 · T-25 · ${data.length} aeronaves`;
+
   document.getElementById('proj-processo-grid').innerHTML=PROJETOS_FIXOS.map(proj=>{
     const cor=projColor(proj);
     const emProc=emProcesso.filter(r=>r.projeto===proj);
@@ -199,8 +202,6 @@ function renderDashboard(data){
     }).join('');
   }
 
-  const projetos=[...new Set(data.map(r=>r.projeto).filter(Boolean))];
-  document.getElementById('subtitulo').textContent=`Projetos: ${projetos.join(', ')} · ${data.length} aeronaves`;
   document.getElementById('last-update').textContent=`Última atualização: ${new Date().toLocaleString('pt-BR')} · Dados do Google Sheets`;
   document.getElementById('loading').style.display='none';
   document.getElementById('dashboard').style.display='block';
