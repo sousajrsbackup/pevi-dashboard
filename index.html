@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Controle de PEVi</title>
+<title>DMOI - Controle de PEVi</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -76,7 +76,7 @@
 <body>
 <div class="header">
   <div class="header-left">
-    <h1>Controle de PEVi</h1>
+    <h1>DMOI -  de PEVi</h1>
     <p id="subtitulo">Carregando dados...</p>
   </div>
   <button class="refresh-btn" onclick="loadData()">
@@ -90,8 +90,8 @@
   <div class="kpi-row">
     <div class="kpi"><div class="kpi-accent" style="background:var(--blue)"></div><div class="kpi-label">Total de PEVi's</div><div class="kpi-value" style="color:var(--blue)" id="kpi-total">—</div><div class="kpi-sub">todas as aeronaves</div></div>
     <div class="kpi"><div class="kpi-accent" style="background:var(--green)"></div><div class="kpi-label">Emitidas (100%)</div><div class="kpi-value" style="color:var(--green)" id="kpi-emitidas">—</div><div class="kpi-sub" id="kpi-emitidas-pct">—</div></div>
-    <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Em processo (&lt;100%)</div><div class="kpi-value" style="color:var(--amber)" id="kpi-processo">—</div><div class="kpi-sub">prioridade do diretor</div></div>
-    <div class="kpi"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Vencendo em 3 meses</div><div class="kpi-value" style="color:var(--red)" id="kpi-vencendo">—</div><div class="kpi-sub">iniciar PEVc urgente</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-label">Em processo (&lt;100%)</div><div class="kpi-value" style="color:var(--amber)" id="kpi-processo">—</div><div class="kpi-sub">prioridade</div></div>
+    <div class="kpi"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-label">Vencendo em 3 meses</div><div class="kpi-value" style="color:var(--red)" id="kpi-vencendo">—</div><div class="kpi-sub">iniciar PEVc</div></div>
   </div>
   <div class="section-title" style="margin-bottom:8px">PEVi's em processo — por projeto</div>
   <div class="proj-grid" id="proj-processo-grid"></div>
